@@ -1,0 +1,12 @@
+__pycache__/
+exports/
+*_sample*.html
+sheagu_book_do.html
+build/
+dist/
+build_mac/
+dist_mac/
+_pyi_runtime/
+.venv-mac-build/
+.venv-mac-run/
+.douban_cache/
