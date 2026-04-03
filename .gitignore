@@ -3,9 +3,7 @@ exports/
 *_sample*.html
 sheagu_book_do.html
 build/
-dist/*
-!dist/*.exe
-!dist/*.zip
+dist/
 build_mac/
 dist_mac/
 _pyi_runtime/
