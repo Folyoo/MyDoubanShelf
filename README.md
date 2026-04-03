@@ -38,9 +38,9 @@
 
 打开`index.html`即可查看汇总结果：
 
-![index_example](fig\index_example.png)
+![index_example](fig/index_example.png)
 
-![music_example](fig\music_example.png)
+![music_example](fig/music_example.png)
 
 ## 主要字段
 
@@ -77,7 +77,7 @@ python app.py
 - 是否优先复用上一次导出，只更新差异部分
 - Cookie（可选）
 
-![ui_example](fig\ui_example.png)
+![ui_example](fig/ui_example.png)
 
 ## 命令行
 
