@@ -80,7 +80,7 @@ python app.py
 基础用法：
 
 ```powershell
-python app.py --account "https://www.douban.com/people/sheagu/" --no-gui
+python app.py --account "https://www.douban.com/people/example-user/" --no-gui
 ```
 
 常用参数：
@@ -95,13 +95,13 @@ python app.py --account "https://www.douban.com/people/sheagu/" --no-gui
 示例：
 
 ```powershell
-python app.py --account sheagu --categories book,movie --statuses wish,collect --no-gui
+python app.py --account example-user --categories book,movie --statuses wish,collect --no-gui
 ```
 
 强制全量刷新：
 
 ```powershell
-python app.py --account sheagu --full-refresh --no-gui
+python app.py --account example-user --full-refresh --no-gui
 ```
 
 ## 增量更新说明
