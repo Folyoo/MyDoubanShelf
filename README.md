@@ -24,11 +24,14 @@
 
 ## 图形界面
 
+推荐使用release版本，以下为其他可行方式。
+
 直接运行：
 
-- Windows 可执行文件：`dist/douban_record_export.exe`
-- 或 `run_exporter.bat`
-- 或源码方式：`python app.py`
+- Windows 图形界面执行：`douban_record_export.exe` 或 `run_exporter.bat`
+- Windows 命令行执行：`douban_record_export_cli.exe`
+- 源码方式：`python app.py`
+- Mac版下载：`douban_record_export_mac-v1.0.0.zip`
 
 界面里可以设置：
 
