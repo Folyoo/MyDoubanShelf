@@ -1,6 +1,6 @@
 # 豆瓣记录导出
 
-这个工具用于抓取豆瓣账号的标记记录，并导出为 CSV 和可筛选的 HTML 页面。
+这个工具用于抓取豆瓣账号的标记记录，并导出为 CSV 和方便信息筛选的 HTML 页面。
 
 当前版本支持：
 
@@ -13,16 +13,60 @@
 ## 主要功能
 
 - 导出总表 CSV、汇总 CSV、分类 CSV
-- 生成分类 HTML 页面和总览首页
-- 页面内支持搜索、状态筛选、标记日期范围筛选、作品时间范围筛选
-- 支持按表头快速排序
-- 支持分页，默认每页 20 条
-- 长文本字段支持折叠：
-  - 作者 / 演职信息 / 表演者等列
-  - 短评列
+- 生成 HTML 信息汇总页面
+- 页面内支持搜索、状态筛选、标记日期范围筛选、作品时间范围筛选、按表头快速排序
 - 支持“我的评分”和“豆瓣评分”
-- 默认优先使用本地上一次导出做增量更新，减少重复抓取
-- 如果需要，可以切换为全量刷新
+- 默认优先使用本地上一次导出做增量更新，减少重复抓取，也可以切换为全量刷新
+
+![index_example](fig/index_example.png)
+
+![music_example](fig/music_example.png)
+
+## 图形界面
+
+直接运行：
+
+- Windows 可执行文件：`dist/douban_record_export.exe`
+- 或 `run_exporter.bat`
+- 或源码方式：`python app.py`
+
+界面里可以设置：
+
+- 豆瓣账号或主页链接
+- 导出目录
+- 是否优先复用上一次导出，只更新差异部分
+- Cookie（可选）
+
+![ui_example](fig/ui_example.png)
+
+## 命令行
+
+基础用法（example-user替换为豆瓣账号名）：
+
+```powershell
+python app.py --account "https://www.douban.com/people/example-user/" --no-gui
+```
+
+常用参数：
+
+- `--output-dir`
+- `--cookie`
+- `--categories`
+- `--statuses`
+- `--full-refresh`
+- `--no-gui`
+
+示例：
+
+```powershell
+python app.py --account example-user --categories book,movie --statuses wish,collect --no-gui
+```
+
+强制全量刷新：
+
+```powershell
+python app.py --account example-user --full-refresh --no-gui
+```
 
 ## 导出结果
 
@@ -54,50 +98,6 @@
 - `intro`：作者 / 演职信息 / 表演者 / 平台类型等
 - `comment`：短评
 
-## 图形界面
-
-直接运行：
-
-- Windows 可执行文件：`dist/douban_record_export.exe`
-- 或 `run_exporter.bat`
-- 或源码方式：`python app.py`
-
-界面里可以设置：
-
-- 豆瓣账号或主页链接
-- 导出目录
-- 是否优先复用上一次导出，只更新差异部分
-- Cookie（可选）
-
-## 命令行
-
-基础用法：
-
-```powershell
-python app.py --account "https://www.douban.com/people/example-user/" --no-gui
-```
-
-常用参数：
-
-- `--output-dir`
-- `--cookie`
-- `--categories`
-- `--statuses`
-- `--full-refresh`
-- `--no-gui`
-
-示例：
-
-```powershell
-python app.py --account example-user --categories book,movie --statuses wish,collect --no-gui
-```
-
-强制全量刷新：
-
-```powershell
-python app.py --account example-user --full-refresh --no-gui
-```
-
 ## 增量更新说明
 
 当前版本默认会尝试读取同一导出根目录下、同一账号的最近一次导出结果。
@@ -105,67 +105,3 @@ python app.py --account example-user --full-refresh --no-gui
 如果网页新数据和旧结果之间能找到稳定重叠区间，就会直接复用旧尾部，只更新差异部分。这样在“最近新增不多”的情况下会明显更快。
 
 如果找不到稳定重叠区间，程序会自动回退到全量抓取，不需要手动处理。
-
-## Cookie 说明
-
-- 默认抓取公开可见页面
-- 不需要豆瓣密码
-- 如果公开页抓不到、被限制，或者你希望尽量按登录后视图导出，可以提供 Cookie
-- 工具不会单独保存你在界面里粘贴的 Cookie
-
-建议不要把 Cookie 文件提交到 Git 仓库。
-
-## 打包与发布
-
-### 本地文件
-
-当前项目里的本地构建产物在 `dist/`：
-
-- `douban_record_export.exe`
-- `douban_record_export_cli.exe`
-- `douban_record_export_mac_source.zip`
-
-### GitHub Actions 自动构建
-
-项目中已经提供：
-
-- `build_mac.command`
-- `run_exporter_mac.command`
-- `MAC_README.txt`
-- GitHub Actions 工作流：`.github/workflows/build-macos.yml`
-
-如果你把项目推到 GitHub：
-
-- 推送到 `master` 或 `main` 会自动构建：
-  - macOS 包
-  - Windows GUI exe
-  - Windows CLI exe
-  - 并上传为 Actions artifacts
-- 推送 tag（例如 `v1.0.0`）时，会额外把这些发布资产自动挂到 GitHub Release：
-  - `douban_record_export_mac-v1.0.0.zip`
-  - `douban_record_export.exe`
-  - `douban_record_export_cli.exe`
-  - `douban_record_export_windows-v1.0.0.zip`
-
-详细说明见：
-
-- `GITHUB_ACTIONS_MAC_BUILD.md`
-
-## 推荐发布方式
-
-如果只是自己本地使用，直接运行源码或 `dist/` 里的 exe 就够了。
-
-如果要发给别人，推荐优先用：
-
-1. GitHub Release
-2. GitHub Actions artifact
-
-这通常比把大型二进制文件长期提交到 Git 仓库更合适。
-
-## 开发提示
-
-- Windows 打包缓存目录：`build/`
-- Mac 打包缓存目录：`build_mac/`
-- 本地评分缓存目录：`.douban_cache/`
-
-这些目录通常不需要提交。

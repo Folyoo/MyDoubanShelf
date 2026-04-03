@@ -28,6 +28,43 @@
 
 这通常比把大型二进制文件长期提交到 Git 仓库更合适。
 
+
+## 打包与发布
+
+### 本地文件
+
+当前项目里的本地构建产物在 `dist/`：
+
+- `douban_record_export.exe`
+- `douban_record_export_cli.exe`
+- `douban_record_export_mac_source.zip`
+
+### GitHub Actions 自动构建
+
+项目中已经提供：
+
+- `build_mac.command`
+- `run_exporter_mac.command`
+- `MAC_README.txt`
+- GitHub Actions 工作流：`.github/workflows/build-macos.yml`
+
+如果你把项目推到 GitHub：
+
+- 推送到 `master` 或 `main` 会自动构建：
+  - macOS 包
+  - Windows GUI exe
+  - Windows CLI exe
+  - 并上传为 Actions artifacts
+- 推送 tag（例如 `v1.0.0`）时，会额外把这些发布资产自动挂到 GitHub Release：
+  - `douban_record_export_mac-v1.0.0.zip`
+  - `douban_record_export.exe`
+  - `douban_record_export_cli.exe`
+  - `douban_record_export_windows-v1.0.0.zip`
+
+详细说明见：
+
+- `GITHUB_ACTIONS_MAC_BUILD.md`
+
 # 开发提示
 
 - Windows 打包缓存目录：`build/`
