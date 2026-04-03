@@ -14,9 +14,15 @@
 
 - 导出总表 CSV、汇总 CSV、分类 CSV
 - 生成分类 HTML 页面和总览首页
-- 页面内支持搜索、状态筛选、按表头快速排序、标记日期范围筛选、作品时间范围筛选
+- 页面内支持搜索、状态筛选、标记日期范围筛选、作品时间范围筛选
+- 支持按表头快速排序
+- 支持分页，默认每页 20 条
+- 长文本字段支持折叠：
+  - 作者 / 演职信息 / 表演者等列
+  - 短评列
 - 支持“我的评分”和“豆瓣评分”
-- 默认优先使用本地上一次导出做增量更新，减少重复抓取，也可以切换为全量刷新
+- 默认优先使用本地上一次导出做增量更新，减少重复抓取
+- 如果需要，可以切换为全量刷新
 
 ## 导出结果
 
@@ -36,12 +42,6 @@
 - `game.html`
 - `drama.html`
 
-打开`index.html`即可查看汇总结果：
-
-![index_example](fig/index_example.png)
-
-![music_example](fig/music_example.png)
-
 ## 主要字段
 
 明细表包含这些核心字段：
@@ -56,19 +56,11 @@
 
 ## 图形界面
 
-直接运行：`dist\douban_record_export.exe`
+直接运行：
 
-或者：
-
-```bat
-run_exporter.bat
-```
-
-或者：
-
-```powershell
-python app.py
-```
+- Windows 可执行文件：`dist/douban_record_export.exe`
+- 或 `run_exporter.bat`
+- 或源码方式：`python app.py`
 
 界面里可以设置：
 
@@ -77,11 +69,9 @@ python app.py
 - 是否优先复用上一次导出，只更新差异部分
 - Cookie（可选）
 
-![ui_example](fig/ui_example.png)
-
 ## 命令行
 
-基础用法（example-user应替换为豆瓣账号名）：
+基础用法：
 
 ```powershell
 python app.py --account "https://www.douban.com/people/example-user/" --no-gui
@@ -123,17 +113,59 @@ python app.py --account example-user --full-refresh --no-gui
 - 如果公开页抓不到、被限制，或者你希望尽量按登录后视图导出，可以提供 Cookie
 - 工具不会单独保存你在界面里粘贴的 Cookie
 
+建议不要把 Cookie 文件提交到 Git 仓库。
+
 ## 打包与发布
 
-### Windows
+### 本地文件
 
-当前项目里的可执行文件在 `dist/`：
+当前项目里的本地构建产物在 `dist/`：
 
 - `douban_record_export.exe`
 - `douban_record_export_cli.exe`
+- `douban_record_export_mac_source.zip`
 
-### Mac
+### GitHub Actions 自动构建
 
-当前项目里的安装包在 `dist/`：
+项目中已经提供：
 
-- `douban-record-export-macos-main.zip`
+- `build_mac.command`
+- `run_exporter_mac.command`
+- `MAC_README.txt`
+- GitHub Actions 工作流：`.github/workflows/build-macos.yml`
+
+如果你把项目推到 GitHub：
+
+- 推送到 `master` 或 `main` 会自动构建：
+  - macOS 包
+  - Windows GUI exe
+  - Windows CLI exe
+  - 并上传为 Actions artifacts
+- 推送 tag（例如 `v1.0.0`）时，会额外把这些发布资产自动挂到 GitHub Release：
+  - `douban_record_export_mac-v1.0.0.zip`
+  - `douban_record_export.exe`
+  - `douban_record_export_cli.exe`
+  - `douban_record_export_windows-v1.0.0.zip`
+
+详细说明见：
+
+- `GITHUB_ACTIONS_MAC_BUILD.md`
+
+## 推荐发布方式
+
+如果只是自己本地使用，直接运行源码或 `dist/` 里的 exe 就够了。
+
+如果要发给别人，推荐优先用：
+
+1. GitHub Release
+2. GitHub Actions artifact
+
+这通常比把大型二进制文件长期提交到 Git 仓库更合适。
+
+## 开发提示
+
+- Windows 打包缓存目录：`build/`
+- Mac 打包缓存目录：`build_mac/`
+- 本地评分缓存目录：`.douban_cache/`
+
+这些目录通常不需要提交。

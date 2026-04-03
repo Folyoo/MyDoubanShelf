@@ -1,4 +1,4 @@
-name: Build macOS App
+name: Build Release Assets
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: build-macos-${{ github.ref }}
+  group: build-release-assets-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -46,25 +46,108 @@ jobs:
             --workpath build_mac \
             app.py
 
-      - name: Package app bundle
+      - name: Package macOS app bundle
         run: |
-          mkdir -p release
-          cp MAC_README.txt release/MAC_README.txt
-          ditto -c -k --sequesterRsrc --keepParent "dist_mac/douban_record_export_mac.app" "release/douban_record_export_mac-${{ github.ref_name }}.zip"
+          mkdir -p release/macos
+          cp MAC_README.txt release/macos/MAC_README.txt
+          ditto -c -k --sequesterRsrc --keepParent "dist_mac/douban_record_export_mac.app" "release/macos/douban_record_export_mac-${{ github.ref_name }}.zip"
 
-      - name: Upload workflow artifact
+      - name: Upload macOS workflow artifact
         uses: actions/upload-artifact@v6
         with:
           name: douban-record-export-macos-${{ github.ref_name }}
           path: |
-            release/douban_record_export_mac-${{ github.ref_name }}.zip
-            release/MAC_README.txt
+            release/macos/douban_record_export_mac-${{ github.ref_name }}.zip
+            release/macos/MAC_README.txt
           retention-days: 30
 
-      - name: Publish release asset on tag
-        if: startsWith(github.ref, 'refs/tags/')
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pyinstaller
+
+      - name: Build Windows GUI exe
+        shell: pwsh
+        run: |
+          pyinstaller `
+            --noconfirm `
+            --clean `
+            --onefile `
+            --windowed `
+            --name douban_record_export `
+            --distpath dist_win `
+            --workpath build_win `
+            app.py
+
+      - name: Build Windows CLI exe
+        shell: pwsh
+        run: |
+          pyinstaller `
+            --noconfirm `
+            --clean `
+            --onefile `
+            --name douban_record_export_cli `
+            --distpath dist_win `
+            --workpath build_win `
+            app.py
+
+      - name: Prepare Windows release files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release\windows | Out-Null
+          Copy-Item dist_win\douban_record_export.exe release\windows\
+          Copy-Item dist_win\douban_record_export_cli.exe release\windows\
+          Compress-Archive -Path dist_win\douban_record_export.exe, dist_win\douban_record_export_cli.exe -DestinationPath release\windows\douban_record_export_windows-${{ github.ref_name }}.zip -Force
+
+      - name: Upload Windows workflow artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: douban-record-export-windows-${{ github.ref_name }}
+          path: |
+            release/windows/douban_record_export.exe
+            release/windows/douban_record_export_cli.exe
+            release/windows/douban_record_export_windows-${{ github.ref_name }}.zip
+          retention-days: 30
+
+  publish-release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs:
+      - build-macos
+      - build-windows
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: douban-record-export-macos-${{ github.ref_name }}
+          path: release-assets/macos
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: douban-record-export-windows-${{ github.ref_name }}
+          path: release-assets/windows
+
+      - name: Publish release assets
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release/douban_record_export_mac-${{ github.ref_name }}.zip
+            release-assets/macos/douban_record_export_mac-${{ github.ref_name }}.zip
+            release-assets/windows/douban_record_export.exe
+            release-assets/windows/douban_record_export_cli.exe
+            release-assets/windows/douban_record_export_windows-${{ github.ref_name }}.zip
           generate_release_notes: true
