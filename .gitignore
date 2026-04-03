@@ -3,10 +3,13 @@ exports/
 *_sample*.html
 sheagu_book_do.html
 build/
-dist/
+dist/*
+!dist/*.exe
+!dist/*.zip
 build_mac/
 dist_mac/
 _pyi_runtime/
 .venv-mac-build/
 .venv-mac-run/
 .douban_cache/
+my_cookie.txt
